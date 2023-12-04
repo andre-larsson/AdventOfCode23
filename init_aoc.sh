@@ -28,7 +28,7 @@ echo "See $DAY/input.data for input data."
 
 # try to extract the title of today's coding challenge, and use it as filename
 TODAY_TITLE=$(curl -s $TODAY_URL | grep -oP '(?<=--- ).+(?= ---)')
-NEWFILE_PATH="$DAY/$(echo $TODAY_TITLE | sed 's/[ :]//g' | sed 's/Day3//').mjs"
+NEWFILE_PATH="$DAY/$(echo $TODAY_TITLE | sed 's/[ :]//g' | sed 's/Day$((DAY))//').mjs"
 
 if [[ $TODAY_TITLE ]]
 then
