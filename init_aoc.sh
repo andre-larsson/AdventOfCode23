@@ -16,6 +16,19 @@ DAY=$(date +"%d" -u) # day of month (utc), include leading zero e.g. 03
 MONTH=$(date +"%m" -u)
 YEAR=$(date +"%y" -u)
 
+# if not december of after 25th, then use 25st of december
+
+if [[ $MONTH != "12" ]]
+then
+    MONTH="12"
+    DAY="01"
+fi
+
+if [[ $DAY -gt 25 ]]
+then
+    DAY="01"
+fi
+
 echo "This script will download the input data for an advent of code challenge, year 2023."
 echo "It will also create a file for the challenge, if it does not exist."
 echo "Today is day $DAY, month $MONTH, year $YEAR."
@@ -24,6 +37,12 @@ read -p "Choose a day to download input for ($DAY):" DAY_CHOICE
 if [[ $DAY_CHOICE ]]
 then
     DAY=$DAY_CHOICE
+fi
+
+# if day is less than two digits, add leading zero
+if [[ ${#DAY} -lt 2 ]]
+then
+    DAY="0$DAY"
 fi
 
 echo "Will download input for day $DAY, year $YEAR."
@@ -67,3 +86,4 @@ fi
 
 echo "Check $TODAY_URL for the description, and folder $DAY for input data and a template file."
 echo "Now go and solve it! :)"
+cd $DAY
