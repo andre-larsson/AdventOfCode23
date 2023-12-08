@@ -16,6 +16,8 @@ DAY=$(date +"%d" -u) # day of month (utc), include leading zero e.g. 03
 MONTH=$(date +"%m" -u)
 YEAR=$(date +"%y" -u)
 
+DAY_INT=$((10#$DAY)) # remove leading zero, 10# is to avoid octal interpretation
+
 # if not december of after 25th, then use 25st of december
 
 if [[ $MONTH != "12" ]]
@@ -24,9 +26,10 @@ then
     DAY="01"
 fi
 
-if [[ $DAY -gt 25 ]]
+if [[ $DAY_INT -gt 25 ]]
 then
     DAY="01"
+    DAY_INT=1
 fi
 
 echo "This script will download the input data for an advent of code challenge, year 2023."
@@ -37,9 +40,10 @@ read -p "Choose a day to download input for ($DAY):" DAY_CHOICE
 if [[ $DAY_CHOICE ]]
 then
     DAY=$DAY_CHOICE
+    DAY_INT=$((10#$DAY))
 fi
 
-# if day is less than two digits, add leading zero
+# if DAY is less than two digits, add leading zero
 if [[ ${#DAY} -lt 2 ]]
 then
     DAY="0$DAY"
@@ -55,7 +59,7 @@ then
 fi
 
 # $((str)) will convert to str to number
-TODAY_URL="https://adventofcode.com/2023/day/$((DAY))"
+TODAY_URL="https://adventofcode.com/2023/day/$DAY_INT"
 mkdir -p $DAY
 curl -s -H "Cookie:session=$SESSION_ID" $TODAY_URL/input > $DAY/input.data
 
@@ -63,7 +67,7 @@ echo "See $DAY/input.data for input data."
 
 # try to extract the title of today's coding challenge, and use it as filename
 TODAY_TITLE=$(curl -s $TODAY_URL | grep -oP '(?<=--- ).+(?= ---)')
-PRUNED_TITLE=$(echo "$TODAY_TITLE" | sed "s/[ :]//g" | sed "s/Day$((DAY))//")
+PRUNED_TITLE=$(echo "$TODAY_TITLE" | sed "s/[ :]//g" | sed "s/Day$((DAY_INT))//")
 NEWFILE_PATH=$DAY/$PRUNED_TITLE.mjs
 
 if [[ $TODAY_TITLE ]]
@@ -86,4 +90,3 @@ fi
 
 echo "Check $TODAY_URL for the description, and folder $DAY for input data and a template file."
 echo "Now go and solve it! :)"
-cd $DAY
