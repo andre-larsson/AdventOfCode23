@@ -14,11 +14,12 @@ const parseNode = (line) => {
     }
 };
 
+// find the left right instructions
 const leftRight = inputLines[0].split("");
 
+// parse the nodes and their connections
 const nodes = inputLines.slice(1).map(parseNode);
 let GraphNodes = {};
-
 nodes.forEach(node => {
     GraphNodes[node.name] = {
         name: node.name,
@@ -31,6 +32,7 @@ nodes.forEach(node => {
 // Part 1
 
 if(GraphNodes["AAA"] != undefined) {
+    // only run if a AAA node is in the data
     let currentNode = "AAA"
     let lri = 0;
     let numSteps = 0;
@@ -94,11 +96,12 @@ const findPeriodicity = (initNode, leftRight) => {
 }
 
 // if we run the periodicity finder for a longer time,
-// we find that each starting point always returns to exactly one node ending in Z
+// we find that each starting point get stuck in a loop that
+// returns to exactly one node ending in Z with some periodicity.
 const periodicity = currentNodes.map(node => findPeriodicity(node, leftRight));
 
 
-// functions for finding the least common multiple of a list of integers
+// For finding the least common multiple of a list of integers
 // https://stackoverflow.com/a/34955386
 const gcd2 = (a, b) => {
     // Greatest common divisor of 2 integers
@@ -117,9 +120,9 @@ const lcm = (array) => {
     return n;
 }
 
-// first match and periodicity are equal in each node.
-// the repeating pattern starts with the same offset (0) for each node.
-// we have to find the least common multiple of the periodicities
+// Note that first match and periodicity are equal in each node:
+// The repeating pattern starts with the same offset (0) for each node.
+// We only have to find the least common multiple of the periodicities
 // (this is where all Z's are first aligned)
 periodicity.forEach(p => {
     console.log(p);
@@ -127,4 +130,4 @@ periodicity.forEach(p => {
 
 const commonPeriod = lcm(periodicity.map(p => p.periodicity));
 
-console.log(commonPeriod);
+console.log("Part 2 answer:", commonPeriod);
