@@ -33,7 +33,7 @@ then
 fi
 
 echo "This script will download the input data for an advent of code challenge, year 2023."
-echo "It will also create a file for the challenge, if it does not exist."
+echo "It will also create a very simple template node.js file for the challenge."
 echo "Today is day $DAY, month $MONTH, year $YEAR."
 read -p "Choose a day to download input for ($DAY):" DAY_CHOICE
 
