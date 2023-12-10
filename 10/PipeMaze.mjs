@@ -47,8 +47,7 @@ class Pipe {
                     {x: this.pos.x + 1, y: this.pos.y}
                 ];
             case "S":
-                // we cannot tell the neighbors of the start tile,
-                // without knowing the surrounding tiles
+                // we cannot tell the neighbors of the start tile, without knowing the surrounding tiles
                 // fill in these in PipeMap
                 return [];
             case ".":
@@ -62,7 +61,7 @@ class Pipe {
 class PipeMap {
     constructor(tilesChars) {
         // tilesChars is a 2d array of pipe characters
-        this.tiles = tiles.map((row, i) => row.map((tile, j) => new Pipe({x: j, y: i}, tile)));
+        this.tiles = tilesChars.map((row, i) => row.map((tile, j) => new Pipe({x: j, y: i}, tile)));
 
         // find and add the neighbors for each tile
         for(let i = 0; i < this.tiles.length; i++) {
