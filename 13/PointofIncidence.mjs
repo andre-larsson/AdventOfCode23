@@ -59,26 +59,16 @@ const findSmudgesForLine = (grid, x) => {
 const getPatternValueSmudge = (grid) => {
     // get value for a pattern given the rules in part 2
     // check grid for any reflection lines that have exactly one smudge
-    const checkGrid = (grid) => {
-        for (let x = 1; x < grid[0].length; x++) {
-            const smudges = findSmudgesForLine(grid, x);
-            if (smudges.length === 1) {
-                // return new reflection line
-                return x;
-            }
-        }
-        return null;
+
+    for (let x = 1; x < grid[0].length; x++) {
+        if(findSmudgesForLine(grid, x)?.length==1) return x
     }
-
-    let newSymmLine = checkGrid(grid);
-
-    if(newSymmLine) return newSymmLine;
 
     // check horizontal lines of symmetries
     let gridT = transposeGrid(grid);
-    newSymmLine = checkGrid(gridT);
-
-    if(newSymmLine) return newSymmLine*100;
+    for (let x = 1; x < gridT[0].length; x++) {
+        if(findSmudgesForLine(gridT, x)?.length==1) return 100*x
+    }
 
     
     // all grids should have at least one smudge
