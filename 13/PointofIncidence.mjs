@@ -8,54 +8,106 @@ const grids = input.split("\n\n")
     .map(line => line.split("")));
 
 
-const calcPatternSum = (grid) => {
+const isSymmetryLine = (grid, x) => {
+    // is x a (vertical) symmetry line for grid?
     const gridWidth = grid[0].length;
     const gridHeight = grid.length;
-    let sum=0;
 
     // check vertical lines of symmetries
-    for (let x = 1; x < gridWidth; x++) {
-        const maxPatternWidth = Math.min(x, gridWidth-x);
+    const maxPatternWidth = Math.min(x, gridWidth-x);
 
-        let isSymmetric = true;
-
-        for (let width = 1; width <= maxPatternWidth; width++) {
-            for (let y = 0; y < gridHeight; y++) {
-                if (grid[y][x-width] !== grid[y][x+width-1]) {
-                    isSymmetric = false;
-                    break;
-                }
+    // check if current line is a symmetry line
+    for (let width = 1; width <= maxPatternWidth; width++) {
+        for (let y = 0; y < gridHeight; y++) {
+            if (grid[y][x-width] !== grid[y][x+width-1]) {
+                return false;
             }
-            if (!isSymmetric) break;
         }
+    }
+    return true;
+};
 
-        if (isSymmetric) sum += x;
 
+const transposeGrid = (grid) => {
+    return grid[0].map((_, colIndex) => grid.map(row => row[colIndex]));
+}
+
+
+const findSmudgesForLine = (grid, x) => {
+    // find all smudges for a given (vertical) symmetry line
+    // smudge is a point where the value is not reflected
+    const gridWidth = grid[0].length;
+    const gridHeight = grid.length;
+
+    // check vertical lines of symmetries
+    const maxPatternWidth = Math.min(x, gridWidth-x);
+
+    const smudges = [];
+
+    // check how many diffs are there for a given line
+    for (let width = 1; width <= maxPatternWidth; width++) {
+        for (let y = 0; y < gridHeight; y++) {
+            if (grid[y][x-width] !== grid[y][x+width-1]) {
+                smudges.push({sx:x-width, sy:y});
+            }
+        }
+    }
+
+    return smudges;
+};
+
+const getPatternValueSmudge = (grid) => {
+    // get value for a pattern given the rules in part 2
+    // check grid for any reflection lines that have exactly one smudge
+    const checkGrid = (grid) => {
+        for (let x = 1; x < grid[0].length; x++) {
+            const smudges = findSmudgesForLine(grid, x);
+            if (smudges.length === 1) {
+                // return new reflection line
+                return x;
+            }
+        }
+        return null;
+    }
+
+    let newSymmLine = checkGrid(grid);
+
+    if(newSymmLine) return newSymmLine;
+
+    // check horizontal lines of symmetries
+    let gridT = transposeGrid(grid);
+    newSymmLine = checkGrid(gridT);
+
+    if(newSymmLine) return newSymmLine*100;
+
+    
+    // all grids should have at least one smudge
+    throw new Error("No smudges found");
+}
+
+
+const getPatternValue = (grid) => {
+    // get value for a pattern given the rules in part 1
+    // check vertical lines of symmetries
+    for (let x = 1; x < grid[0].length; x++) {
+        if (isSymmetryLine(grid, x)) return x;
     }
 
     // check horizontal lines of symmetries
-    for (let y = 1; y < gridHeight; y++) {
-        const maxPatternHeight = Math.min(y, gridHeight-y);
+    const  gridT = transposeGrid(grid);
 
-        let isSymmetric = true;
-
-        for (let height = 1; height <= maxPatternHeight; height++) {
-            for (let x = 0; x < gridWidth; x++) {
-                if (grid[y-height][x] !== grid[y+height-1][x]) {
-                    isSymmetric = false;
-                    break;
-                }
-            }
-            if (!isSymmetric) break;
-        }
-
-        if (isSymmetric) sum += 100*y;
+    for (let x = 1; x < gridT[0].length; x++) {
+        if (isSymmetryLine(gridT, x)) return x*100;
     }
 
-    return sum;
+    // all grids should have at least one symmetry
+    throw new Error("No symmetries found");
 }
 
-const sum1 = grids.reduce((sum, grid) => sum + calcPatternSum(grid), 0);
-
+const sum1 = grids.reduce((sum, grid) => sum + getPatternValue(grid), 0);
 
 console.log("Part 1 Answer:", sum1);
+
+const sum2 = grids.reduce((sum, grid) => sum + getPatternValueSmudge(grid), 0);
+
+console.log("Part 2 Answer:", sum2);
