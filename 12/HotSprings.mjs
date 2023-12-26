@@ -24,6 +24,10 @@ const getAllPossibleRecords = (record) => {
 
     let memo = {};
 
+    const sum = (array) => {
+        return array.reduce((acc, n) => acc + n, 0);
+    }
+
     const getNumPossibleArrangements = (condition, remainingGroups) => {
         if(condition.length == 0 && remainingGroups.length == 0) {
             // no remaining groups and no remaining condition
@@ -32,7 +36,7 @@ const getAllPossibleRecords = (record) => {
         } else if(condition.length == 0 && remainingGroups.length > 0) {
             // not possible
             return 0;
-        } else if(condition.length*2-1 < remainingGroups.length){
+        } else if(condition.length < sum(remainingGroups) + remainingGroups.length-1){
             // cannot split into enough groups
             return 0;
         }
@@ -122,5 +126,5 @@ const unfoldedRecords = recordList.map(record => {
 const pr2 = unfoldedRecords.map(record => getAllPossibleRecords(record));
 const sum2 = pr2.reduce((acc, records) => acc + records, 0);
 
-// very slow and still wrong answer, am I so bad at this :(
+// very slow (couple of minutes) but at least now gives right answer, lets move on...
 console.log(`Part 2: ${sum2}`);
