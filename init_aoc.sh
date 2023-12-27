@@ -6,7 +6,7 @@ then
     echo "How to find your session id (Chrome 118):"
     echo "1. Log in to adventofcode and open the developer console (F12)"
     echo "2. Go to the application tab"
-    echo "3. Under storage, find the cookie named session"
+    echo "3. Under Storage/Cookies/https://adventofcode.com, find the cookie named session"
     exit 1
 fi
 
@@ -28,13 +28,13 @@ fi
 
 if [[ $DAY_INT -gt 25 ]]
 then
-    DAY="01"
-    DAY_INT=1
+    DAY="25"
+    DAY_INT=25
 fi
 
 echo "This script will download the input data for an advent of code challenge, year 2023."
-echo "It will also create a very simple template node.js file for the challenge."
-echo "Today is day $DAY, month $MONTH, year $YEAR."
+echo "It will also create a simple template node.js file for the challenge."
+echo "Latest challenge is $DAY, month $MONTH, year $YEAR."
 read -p "Choose a day to download input for ($DAY):" DAY_CHOICE
 
 if [[ $DAY_CHOICE ]]
