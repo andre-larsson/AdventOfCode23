@@ -5,6 +5,9 @@ const input = await readInput("input.data");
 const LOW = 1;
 const HIGH = 2;
 
+// note: store all pulses as objects:
+// {from: "module1", to: "module2", value: LOW}
+
 const createBroadcastFn = (name, outputs) => {
     const fn = (inSignal) => {
         const result = outputs.map((output) => {
@@ -65,6 +68,7 @@ const createConjuctionFn = (name, inputs, outputs) => {
 
 
 const parseInput = (input) => {
+    // split into type, name, outputs
     const parsed = input.split("\n")
     .filter(line => line.length>0)
     .map((line) => {
@@ -84,6 +88,7 @@ const parseInput = (input) => {
     });
     let modules = {};
 
+    // create functions for each module
     parsed.forEach(module => {
         const [type, name, outputs] = module;
 
@@ -92,7 +97,7 @@ const parseInput = (input) => {
         } else if(type =="%"){
             modules[name] = createFlipFlopFn(name, outputs);
         } if(type == "&"){
-            // find inputs
+            // find all other nodes that output to this node
             const inputs = parsed.reduce((acc, row) => {
                 const [type, currName, outputs] = row;
                 if(outputs.includes(name)){
@@ -107,10 +112,20 @@ const parseInput = (input) => {
         
     });
 
-    return modules;
+    // given an insignal, dispatch it to the correct module and return the output signals
+    const dispatcher = (inSignal) => {
+        const fn = modules[inSignal.to];
+        if(fn === undefined){
+            console.log("Unknown module encountered:", inSignal.to);
+            return [];
+        }
+        return fn(inSignal);
+    }
+
+    return dispatcher;
 }
 
-const modules = parseInput(input);
+const moduleDispatcher = parseInput(input);
 
 const pushButton = (n, part2=false) => {
 
@@ -131,11 +146,9 @@ const pushButton = (n, part2=false) => {
             for(let inPulse of currentPulses){
                 if(inPulse.to =="rx"){
                     if(part2 && inPulse.value == LOW) return i;
-                } else if(modules[inPulse.to] !== undefined){
-                    const outPulses = modules[inPulse.to](inPulse);
-                    newPulses = [...newPulses, ...outPulses]
                 } else{
-                    console.log("Terminal node encountered:", inPulse.to)
+                    const outPulses = moduleDispatcher(inPulse);
+                    newPulses = [...newPulses, ...outPulses]
                 }
             }
             currentPulses = newPulses;
