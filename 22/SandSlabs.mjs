@@ -1,4 +1,3 @@
-import { error } from "console";
 import { readInput } from "../shared/util.mjs"
 
 const input = await readInput("input.data");
