@@ -26,7 +26,7 @@ then
     DAY="01"
 fi
 
-if [[ $DAY_INT -gt 25 ]]
+if [[ $DAY_INT -gt 25 || $YEAR != "23" ]]
 then
     DAY="25"
     DAY_INT=25
