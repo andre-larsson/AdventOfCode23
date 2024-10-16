@@ -19,6 +19,13 @@ const createBroadcastFn = (name, outputs) => {
     return fn;
 }
 
+const lcm = (array) => {
+    const gcd = (a, b) => a ? gcd(b % a, a) : b;
+    const lcm2 = (a, b) => a * b / gcd(a, b);
+    const lcmArray = (arr) => arr.reduce((acc, val) => lcm2(acc, val), 1);
+    return lcmArray(array);
+}
+
 const createFlipFlopFn = (name, outputs) =>{
     // variable 'on' tracks the internal state of each module (on/off)
     let on = false;
@@ -86,16 +93,20 @@ const parseInput = (input) => {
         const outputs = outputStr.split(", ");
         return [type, name, outputs]
     });
+
     let modules = {};
 
     // create functions for each module
     parsed.forEach(module => {
         const [type, name, outputs] = module;
 
+        modules[name] = {type, name, outputs};
+
         if(type=="broadcaster"){
-            modules[name] = createBroadcastFn(name, outputs);
+            modules[name].fn = createBroadcastFn(name, outputs);
         } else if(type =="%"){
-            modules[name] = createFlipFlopFn(name, outputs);
+            modules[name].fn = createFlipFlopFn(name, outputs);
+            modules[name].state = false;
         } if(type == "&"){
             // find all other nodes that output to this node
             const inputs = parsed.reduce((acc, row) => {
@@ -106,15 +117,20 @@ const parseInput = (input) => {
                     return acc
                 }
             }, []);
-
-            modules[name] = createConjuctionFn(name, inputs, outputs);
+            modules[name].inputs = inputs;
+            modules[name].inputValues = inputs.reduce((acc, input) => {
+                acc[input] = LOW;
+                return acc;
+            }, {});
+            modules[name].fn = createConjuctionFn(name, inputs, outputs);
         }
         
     });
 
     // given an insignal, dispatch it to the correct module and return the output signals
     const dispatcher = (inSignal) => {
-        const fn = modules[inSignal.to];
+        if(inSignal.to=="rx") return [];
+        const fn = modules[inSignal.to].fn;
         if(fn === undefined){
             console.log("Unknown module encountered:", inSignal.to);
             return [];
@@ -122,15 +138,25 @@ const parseInput = (input) => {
         return fn(inSignal);
     }
 
-    return dispatcher;
+    return {moduleDispatcher: dispatcher, modules: modules};
 }
 
-const moduleDispatcher = parseInput(input);
 
-const pushButton = (n, part2=false) => {
+const {moduleDispatcher} = parseInput(input);
+
+const pushButton = (n, moduleDispatcher, part2=false) => {
 
     let numLow = 0;
     let numHigh = 0;
+
+    // note: conjunction &  will send low pulse (to rx) if all inputs are high
+    // we want to know when the rx receives a low pulse
+    // this happens when all inputs to lv (chainedPulses) are all high
+    // which happens when all chainedPulses receives a low pulse simultaneously
+    // chainedPulses (all received low pulse in same turn) >all sends high> &lv >low> rx
+    //
+
+    const chainedPulses = {"st":-1, "tn":-1, "hh":-1, "dt":-1};
 
 
     for(let i =0; i<n; i++){
@@ -144,26 +170,35 @@ const pushButton = (n, part2=false) => {
             numLow += currentPulses.filter(item => item.value==LOW).length;
             numHigh += currentPulses.filter(item => item.value==HIGH).length;
             for(let inPulse of currentPulses){
-                if(inPulse.to =="rx"){
-                    if(part2 && inPulse.value == LOW) return i;
-                } else{
-                    const outPulses = moduleDispatcher(inPulse);
-                    newPulses = [...newPulses, ...outPulses]
+
+                if(inPulse.value == LOW && chainedPulses[inPulse.to] == -1){
+                    // chainedModule to receive a LOW pulse, meaning it becomes HIGH
+                    chainedPulses[inPulse.to] = i+1; // to include first pulse
                 }
+
+
+                const outPulses = moduleDispatcher(inPulse);
+                newPulses = [...newPulses, ...outPulses]
             }
             currentPulses = newPulses;
         } while(currentPulses.length>0);
+
+        if(part2 && Object.values(chainedPulses).every(value => value!=-1)){
+            break;
+        }
     };
 
-    if(part2) return null;
-
+    if(part2) return lcm(Object.values(chainedPulses))
     return numLow*numHigh;
 }
 
-const answer1 = pushButton(1000);
+const answer1 = pushButton(1000, moduleDispatcher);
 
 console.log("Part 1 Answer:", answer1);
 
-// too slow, another approach needed
-// const answer2 = pushButton(1000000000, true);
-// console.log("Part 2 Answer:", answer2);
+// Part 2
+// reset all states
+const {moduleDispatcher: moduleDispatcher2} = parseInput(input);
+
+const answer2 = pushButton(1000000, moduleDispatcher2, true);
+console.log("Part 2 Answer:", answer2);
