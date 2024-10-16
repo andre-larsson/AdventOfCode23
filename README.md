@@ -2,17 +2,14 @@
 
 See https://adventofcode.com for the puzzles and additional information about Advent of Code.
 
-- Language: Javascript (node.js)
-
 ## Download your input data
 
 ### Prerequisites
 - Logged in to your advent of code account
-- In repo root folder
 
 ### Instructions
 
-Run
+From the repo root folder, run
 
 ```bash
 ./init_aoc.sh
@@ -24,15 +21,15 @@ and follow the instructions to download your input data for a specific day.
 
 ### Prerequisites
 - Nodejs
-- In repo root folder
+- Your puzzle data is saved as `input.data` in the corresponding folder
 
 ### Instructions
 
-As an example, the code for the puzzle for day 19 can be run by
+As an example, from the repo root directory, the code for the puzzle for day 19 can be run by
 
 ```bash
 cd 19
 node Aplenty.mjs
 ```
 
-after downloading the input data as `input.data` in the same folder
+after downloading the input data to the same folder.
