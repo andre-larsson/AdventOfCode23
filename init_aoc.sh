@@ -13,20 +13,21 @@ fi
 export $(grep -v '^#' .env | xargs)
 
 DAY=$(date +"%d" -u) # day of month (utc), include leading zero e.g. 03
-MONTH=$(date +"%m" -u)
-YEAR=24
+CURRMONTH=$(date +"%m" -u)
+CURRYEAR=$(date +"%y" -u)
+YEAR=23
 
 DAY_INT=$((10#$DAY)) # remove leading zero, 10# is to avoid octal interpretation
 
 # if not december of after 25th, then use 25st of december
 
-if [[ $MONTH != "12" || $YEAR -gt 23 ]]
+if [[ $MONTH != "12" || $CURRYEAR -gt 23 ]]
 then
     MONTH="12"
     DAY="01"
 fi
 
-if [[ $DAY_INT -gt 25 || $YEAR -gt 23 ]]
+if [[ $DAY_INT -gt 25 || $CURRYEAR -gt 23 ]]
 then
     DAY="25"
     DAY_INT=25
