@@ -15,7 +15,7 @@ From the repo root folder, run
 ./init_aoc.sh
 ```
 
-and follow the instructions to download your input data for a specific day.
+and follow the instructions.
 
 ## Run the solutions
 
