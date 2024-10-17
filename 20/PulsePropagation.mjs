@@ -127,6 +127,10 @@ const parseInput = (input) => {
         
     });
 
+    // find module that outputs to rx
+    const rxInputs = parsed.filter(row => row[2].includes("rx")).map(row => row[1]);
+    modules["rx"] = {inputs: rxInputs};
+
     // given an insignal, dispatch it to the correct module and return the output signals
     const dispatcher = (inSignal) => {
         if(inSignal.to=="rx") return [];
@@ -142,9 +146,9 @@ const parseInput = (input) => {
 }
 
 
-const {moduleDispatcher} = parseInput(input);
+const {moduleDispatcher, modules} = parseInput(input);
 
-const pushButton = (n, moduleDispatcher, part2=false) => {
+const pushButton = (n, moduleDispatcher, modules, part2=false) => {
 
     let numLow = 0;
     let numHigh = 0;
@@ -156,7 +160,11 @@ const pushButton = (n, moduleDispatcher, part2=false) => {
     // chainedPulses (all received low pulse in same turn) >all sends high> &lv >low> rx
     //
 
-    const chainedPulses = {"st":-1, "tn":-1, "hh":-1, "dt":-1};
+    const rxInput = modules["rx"].inputs[0];
+    const chainedPulses = modules[rxInput].inputs.reduce((acc, input) => {
+        acc[input] = -1;
+        return acc;
+    }, {});
 
 
     for(let i =0; i<n; i++){
@@ -192,13 +200,13 @@ const pushButton = (n, moduleDispatcher, part2=false) => {
     return numLow*numHigh;
 }
 
-const answer1 = pushButton(1000, moduleDispatcher);
+const answer1 = pushButton(1000, moduleDispatcher, modules);
 
 console.log("Part 1 Answer:", answer1);
 
 // Part 2
 // reset all states
-const {moduleDispatcher: moduleDispatcher2} = parseInput(input);
+const {moduleDispatcher: moduleDispatcher2, modules: modules2} = parseInput(input);
 
-const answer2 = pushButton(1000000, moduleDispatcher2, true);
+const answer2 = pushButton(1000000, moduleDispatcher2, modules2, true);
 console.log("Part 2 Answer:", answer2);
